@@ -1,14 +1,13 @@
 import net.minecrell.pluginyml.bukkit.BukkitPluginDescription
 
 plugins {
-    kotlin("jvm") version "2.0.0"
-    id("xyz.jpenilla.run-paper") version "2.3.0"
-    id("io.papermc.paperweight.userdev") version "1.7.1"
+    kotlin("jvm") version "2.1.0"
+    id("xyz.jpenilla.run-paper") version "2.3.1"
     id("net.minecrell.plugin-yml.bukkit") version "0.6.0"
 }
 
 group = "net.rk4z"
-version = "2.1.0"
+version = "2.1.1"
 
 repositories {
     mavenCentral()
@@ -17,9 +16,9 @@ repositories {
 }
 
 dependencies {
-    paperweight.paperDevBundle("1.21.3-R0.1-SNAPSHOT")
-    compileOnly("io.papermc.paper:paper-api:1.21.3-R0.1-SNAPSHOT")
-    implementation("net.rk4z.s1:pluginbase:1.1.4")
+    compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
+    library("net.ririfa:langman:1.4.2")
+    library("net.rk4z:igf:1.0.1")
 }
 
 kotlin {
@@ -29,10 +28,10 @@ kotlin {
 bukkit {
     main = "net.rk4z.quickec.QuickEC"
     foliaSupported = false
-    apiVersion = "1.20"
+    apiVersion = "1.21"
     load = BukkitPluginDescription.PluginLoadOrder.STARTUP
-    authors = listOf("Lars")
-    contributors = listOf("Lars", "cotrin_d8")
+    authors = listOf("RiriFa")
+    contributors = listOf("RiriFa", "cotrin_d8")
 
     depend = listOf("Kotlin")
     softDepend = listOf("LuckPerms")
@@ -70,11 +69,9 @@ bukkit {
     }
 }
 
-tasks.named<Jar>("jar") {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    from({
-        configurations.runtimeClasspath.get()
-            .filter { it.exists() && !it.name.startsWith("kotlin") }
-            .map { if (it.isDirectory) it else zipTree(it) }
-    })
+
+tasks {
+    runServer {
+        minecraftVersion("1.21.4")
+    }
 }
