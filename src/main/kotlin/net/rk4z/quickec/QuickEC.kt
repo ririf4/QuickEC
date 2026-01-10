@@ -5,8 +5,10 @@ package net.rk4z.quickec
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
-import net.ririfa.langman.InitType
 import net.ririfa.langman.LangMan
+import net.ririfa.langman.LangManBuilder
+import net.ririfa.langman.TextFactory
+import net.ririfa.langman.ext.yaml.YamlFileLoader
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.command.Command
@@ -18,6 +20,7 @@ import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.plugin.java.JavaPlugin
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.yaml.snakeyaml.Yaml
 import java.nio.file.FileSystems
 import java.nio.file.Files
 import java.nio.file.Path
@@ -29,6 +32,8 @@ import java.util.concurrent.ScheduledExecutorService
 @Suppress("unused")
 class QuickEC : JavaPlugin(), Listener {
     companion object {
+        const val PLUGIN_ID = "quickec"
+
         val thread: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
 
         val logger: Logger = LoggerFactory.getLogger(QuickEC::class.java.simpleName)
@@ -41,17 +46,17 @@ class QuickEC : JavaPlugin(), Listener {
 
     override fun onLoad() {
         extractLangFiles()
-        LM = LangMan.createNew(
-            { Component.text(it) },
-            QECT::class,
-            false
-        )
-
-        LM.init(
-            InitType.YAML,
-            langDir,
-            availableLang
-        )
+        LM = LangManBuilder.new<QuickECMSGProvider, Component>()
+            .fromClass(QuickEC::class.java)
+            .fromResource("/assets/$PLUGIN_ID/lang/")
+            .toPath(langDir.toPath())
+            .withMessageKey(QECT::class.java)
+            .withType(YamlFileLoader { inputStream -> Yaml().load(inputStream) })
+            .registerTextFactory(componentFactory)
+            .withLanguage(availableLang)
+            .autoUpdateIfNeeded(true)
+            .debug(true)
+            .build()
     }
 
     override fun onEnable() {
@@ -60,7 +65,7 @@ class QuickEC : JavaPlugin(), Listener {
 
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
         if (sender !is Player) {
-            sender.sendMessage(LM.getSysMessage(QECT.Main.Command.THIS_COMMAND_IS_ONLY_FOR_PLAYERS))
+            sender.sendMessage(LM.getMessage(QECT.Main.Command.THIS_COMMAND_IS_ONLY_FOR_PLAYERS))
             return true
         }
 
@@ -74,7 +79,7 @@ class QuickEC : JavaPlugin(), Listener {
                     if (!sender.hasPermission("quickec.open.ignore_inventory")) {
                         val hasEnderChest = sender.inventory.contains(Material.ENDER_CHEST)
                         if (!hasEnderChest) {
-                            sender.sendMessage(LM.getSysMessage(QECT.Main.Command.NO_ENDER_CHEST_IN_INVENTORY))
+                            sender.sendMessage(LM.getMessage(QECT.Main.Command.NO_ENDER_CHEST_IN_INVENTORY))
                             return@QEC
                         }
                     }
@@ -84,13 +89,13 @@ class QuickEC : JavaPlugin(), Listener {
                             sender.openInventory(sender.enderChest)
                         })
                     } else {
-                        sender.sendMessage(LM.getSysMessage(QECT.Main.Message.NO_PERMISSION))
+                        sender.sendMessage(LM.getMessage(QECT.Main.Message.NO_PERMISSION))
                     }
                 }
             }
 
             "uec" -> {
-                if (args.getOrNull(0) == "_help" || args.isEmpty()) {
+                if (args.getOrNull(0) == "help" || args.isEmpty()) {
                     sendHelp(sender)
                     return true
                 }
@@ -98,7 +103,7 @@ class QuickEC : JavaPlugin(), Listener {
                 if (sender.hasPermission("quickec.open.others")) {
                     QEC {
                         if (args[0].isBlank() || args[0].isEmpty()) {
-                            sender.sendMessage(LM.getSysMessage(QECT.Main.Command.NO_PLAYER_PROVIDED))
+                            sender.sendMessage(LM.getMessage(QECT.Main.Command.NO_PLAYER_PROVIDED))
                             return@QEC
                         }
 
@@ -109,12 +114,12 @@ class QuickEC : JavaPlugin(), Listener {
                                 Bukkit.getPlayer(args[0])
                             }
                         } catch (e: IllegalArgumentException) {
-                            sender.sendMessage(LM.getSysMessage(QECT.Main.Message.INVALID_UUID))
+                            sender.sendMessage(LM.getMessage(QECT.Main.Message.INVALID_UUID))
                             return@QEC
                         }
 
                         if (target == null) {
-                            sender.sendMessage(LM.getSysMessage(QECT.Main.Command.PLAYER_NOT_FOUND))
+                            sender.sendMessage(LM.getMessage(QECT.Main.Command.PLAYER_NOT_FOUND))
                             return@QEC
                         }
 
@@ -123,7 +128,7 @@ class QuickEC : JavaPlugin(), Listener {
                         })
                     }
                 } else {
-                    sender.sendMessage(LM.getSysMessage(QECT.Main.Message.NO_PERMISSION))
+                    sender.sendMessage(LM.getMessage(QECT.Main.Message.NO_PERMISSION))
                 }
             }
         }
@@ -143,8 +148,8 @@ class QuickEC : JavaPlugin(), Listener {
             }
         } else if (command.name.lowercase() == "ec") {
             return mutableListOf("help")
-        } else {
-            return mutableListOf()
+        } else if (command.name.lowercase() == "fox") {
+            return mutableListOf("fox")
         }
 
         return mutableListOf()
@@ -235,6 +240,15 @@ class QuickEC : JavaPlugin(), Listener {
                     Files.copy(resourceFile, targetFile)
                 }
             }
+        }
+    }
+
+    private val componentFactory = object : TextFactory<Component> {
+        override val clazz: Class<Component>
+            get() = Component::class.java
+
+        override fun invoke(text: String): Component {
+            return Component.text(text)
         }
     }
 }

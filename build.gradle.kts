@@ -1,24 +1,26 @@
 import net.minecrell.pluginyml.bukkit.BukkitPluginDescription
 
 plugins {
-    kotlin("jvm") version "2.1.0"
-    id("xyz.jpenilla.run-paper") version "2.3.1"
+    kotlin("jvm") version "2.3.0"
+    id("xyz.jpenilla.run-paper") version "3.0.2"
     id("net.minecrell.plugin-yml.bukkit") version "0.6.0"
 }
 
 group = "net.rk4z"
-version = "2.1.1"
+version = "2.1.2"
 
 repositories {
     mavenCentral()
     mavenLocal()
     maven("https://repo.papermc.io/repository/maven-public/")
+    maven("https://repo.ririfa.net/maven2/")
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
-    library("net.ririfa:langman:1.4.2")
-    library("net.rk4z:igf:1.0.1")
+    compileOnly("io.papermc.paper:paper-api:1.17.1-R0.1-SNAPSHOT")
+    library("net.ririfa:langman-core:+")
+    library("net.ririfa:langman-ext.yaml:+")
+    library("net.ririfa:igf:+")
 }
 
 kotlin {
@@ -26,7 +28,7 @@ kotlin {
 }
 
 bukkit {
-    main = "net.rk4z.quickec.QuickEC"
+    main = "net.ririfa.quickec.QuickEC"
     foliaSupported = false
     apiVersion = "1.21"
     load = BukkitPluginDescription.PluginLoadOrder.STARTUP
