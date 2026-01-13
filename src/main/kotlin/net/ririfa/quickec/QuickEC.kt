@@ -1,6 +1,6 @@
 @file:Suppress("DuplicatedCode")
 
-package net.rk4z.quickec
+package net.ririfa.quickec
 
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor

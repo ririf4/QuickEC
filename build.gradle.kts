@@ -6,8 +6,8 @@ plugins {
     id("net.minecrell.plugin-yml.bukkit") version "0.6.0"
 }
 
-group = "net.rk4z"
-version = "2.1.2"
+group = "net.ririfa"
+version = "2.1.3"
 
 repositories {
     mavenCentral()
@@ -17,7 +17,9 @@ repositories {
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.17.1-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
+
+    library("org.jetbrains.kotlin:kotlin-stdlib:2.3.0")
     library("net.ririfa:langman-core:+")
     library("net.ririfa:langman-ext.yaml:+")
     library("net.ririfa:igf:+")
@@ -35,7 +37,6 @@ bukkit {
     authors = listOf("RiriFa")
     contributors = listOf("RiriFa", "cotrin_d8")
 
-    depend = listOf("Kotlin")
     softDepend = listOf("LuckPerms")
 
     commands {

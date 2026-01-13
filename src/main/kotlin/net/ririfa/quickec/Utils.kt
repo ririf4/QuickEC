@@ -1,4 +1,4 @@
-package net.rk4z.quickec
+package net.ririfa.quickec
 
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
